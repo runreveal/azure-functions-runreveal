@@ -1,0 +1,13 @@
+{
+    "name": "runreveal-log-source",
+    "version": "1.0.0",
+    "description": "Sends Azure log types to RunReveal",
+    "scripts": {
+        "start": "func start",
+        "test": "echo \"No tests yet...\""
+    },
+    "dependencies": {
+        "axios": ">=0.21.2"
+    },
+    "devDependencies": {}
+}
