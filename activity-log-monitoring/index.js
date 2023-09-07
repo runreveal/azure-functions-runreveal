@@ -1,5 +1,8 @@
+const axios = require('axios');
+
 module.exports = async function (context, eventHubMessages) {
 
+    context.log("Event Hub Message Received");
     // Loop over every eventhub message we receive
     for (const event of eventHubMessages) {
         var eventHubParsed = JSON.parse(event);
@@ -11,13 +14,19 @@ module.exports = async function (context, eventHubMessages) {
         // Loop over each record to forward to RunReveal
         for (const record of eventHubParsed.records) {
             if (!record.hasOwnProperty('category')) continue;
+            context.log("Has Records & Category: Sending to RunReveal")
 
             var payload = {
                 category: record.category,
                 event: record
             };
 
-            axios.post(process.env["RUNREVEAL_WEBHOOK"], payload);
+            try {
+                axios.post(process.env["RUNREVEAL_WEBHOOK"], payload);
+            } catch (err) {
+                context.log(`Error sending to RunReveal: ${err}`)
+                throw err
+            }
         }
     }
     context.done();
