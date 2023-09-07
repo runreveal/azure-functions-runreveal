@@ -53,6 +53,14 @@
                 "description": "Consumer group for the activity log Event Hub"
             }
         },
+        "githubRepoURL": {
+            "type": "string",
+            "defaultValue": "https://github.com/runreveal/azure-functions-runreveal.git"
+        },
+        "githubRepoBranch": {
+            "type": "string",
+            "defaultValue": "main"
+        },
         "RunRevealWebhook": {
             "type": "string",
             "metadata": {
@@ -66,7 +74,7 @@
     },
     "variables": {
         "functionAppName": "[parameters('appName')]",
-        "storageAccountName": "[concat(uniquestring(resourceGroup().id), 'functions')]"
+        "storageAccountName": "[concat(uniquestring(resourceGroup().id), '-runreveal-functions')]"
     },
     "resources": [
         {
@@ -148,6 +156,10 @@
                             "value": "[parameters('activityLogEventHubConsumerGroup')]"
                         },
                         {
+                            "name": "AzureWebJobs.activity-log-monitoring.Disabled",
+                            "value": "false"
+                        },
+                        {
                             "name": "RUNREVEAL_WEBHOOK",
                             "value": "[parameters('RunRevealWebhook')]"
                         }
@@ -161,7 +173,12 @@
                     "type": "sourcecontrols",
                     "dependsOn": [
                         "[resourceId('Microsoft.Web/Sites', variables('functionAppName'))]"
-                    ]
+                    ],
+                    "properties": {
+                        "RepoUrl": "[parameters('githubRepoURL')]",
+                        "branch": "[parameters('githubRepoBranch')]",
+                        "IsManualIntegration": true
+                    }
                 }
             ]
         }

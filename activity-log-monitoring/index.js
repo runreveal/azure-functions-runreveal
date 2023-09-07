@@ -1,8 +1,8 @@
 const axios = require('axios');
 
 module.exports = async function (context, eventHubMessages) {
-
-    context.log("Event Hub Message Received");
+    const eventPromises = [];
+    context.log(`(${context.invocationId}) Event Hub Message Received`);
     // Loop over every eventhub message we receive
     for (const event of eventHubMessages) {
         var eventHubParsed = JSON.parse(event);
@@ -14,7 +14,6 @@ module.exports = async function (context, eventHubMessages) {
         // Loop over each record to forward to RunReveal
         for (const record of eventHubParsed.records) {
             if (!record.hasOwnProperty('category')) continue;
-            context.log("Has Records & Category: Sending to RunReveal")
 
             var payload = {
                 category: record.category,
@@ -22,14 +21,24 @@ module.exports = async function (context, eventHubMessages) {
             };
 
             try {
-                axios.post(process.env["RUNREVEAL_WEBHOOK"], payload);
+                eventPromises.push(axios.post(process.env["RUNREVEAL_WEBHOOK"], payload));
             } catch (err) {
-                context.log(`Error sending to RunReveal: ${err}`)
+                context.log(`(${context.invocationId}) Error sending to RunReveal: ${err}`)
                 throw err
             }
         }
     }
-    context.done();
+    context.log(`(${context.invocationId}) Waiting on events to finish sending`)
+
+    await Promise.allSettled(eventPromises).then(res => {
+        if (res.every(x => x.status == "fulfilled")) { context.log(`(${context.invocationId}) All events received by RunReveal`) }
+        else {
+            res.filter(x => x.status == "rejected").forEach(x => {
+                context.log(`(${context.invocationId}) Sending to RunReveal Failed: ${x.reason}`);
+            });
+            throw new Error(`(${context.invocationId}) Error sending events to RunReveal`);
+        }
+    });
 };
 
 const checkConfig = function () {
