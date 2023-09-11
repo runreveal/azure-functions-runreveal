@@ -1,0 +1,194 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/0.1.2-preview/CreateUIDefinition.MultiVm.json#",
+    "handler": "Microsoft.Azure.CreateUIDef",
+    "version": "0.1.2-preview",
+    "parameters": {
+        "config": {
+            "isWizard": true
+        },
+        "basics": [
+            {
+                "name": "appName",
+                "label": "Function App Name",
+                "type": "Microsoft.Common.TextBox",
+                "toolTip": "The name of the function app that you wish to create.",
+                "visible": true,
+                "constraints": {
+                    "required": true
+                }
+            }
+        ],
+        "steps": [
+            {
+                "name": "appSettings",
+                "label": "Function App Settings",
+                "elements": [
+                    {
+                        "name": "ehNsSection",
+                        "type": "Microsoft.Common.Section",
+                        "label": "Event Hub Namespace Details",
+                        "elements": []
+                    },
+                    {
+                        "name": "ehNamespaceApi",
+                        "type": "Microsoft.Solutions.ArmApiControl",
+                        "request": {
+                            "method": "GET",
+                            "path": "[concat(subscription().id, '/providers/Microsoft.EventHub/namespaces', '?api-version=2017-04-01')]"
+                        }
+                    },
+                    {
+                        "name": "ehNamespaceDropDown",
+                        "type": "Microsoft.Common.DropDown",
+                        "label": "Event Hub Namespace",
+                        "toolTip": "Event Hub Namespace containing the Event Hubs to monitor.",
+                        "filter": true,
+                        "constraints": {
+                            "allowedValues": "[map(steps('appSettings').ehNamespaceApi.value, (item) => parse(concat('{\"label\":\"', item.name, '\",\"value\":\"', item.id, '\"}')))]",
+                            "required": true
+                        },
+                        "visible": true
+                    },
+                    {
+                        "name": "ehPolicyApi",
+                        "type": "Microsoft.Solutions.ArmApiControl",
+                        "request": {
+                            "method": "GET",
+                            "path": "[concat(steps('appSettings').ehNamespaceDropDown, '/authorizationRules', '?api-version=2017-04-01')]"
+                        }
+                    },
+                    {
+                        "name": "ehPolicyDropDown",
+                        "type": "Microsoft.Common.DropDown",
+                        "label": "Event Hub Access Policy",
+                        "toolTip": "Specify a policy with a 'Listen' or greater claim.",
+                        "constraints": {
+                            "allowedValues": "[map(steps('appSettings').ehPolicyApi.value, (item) => parse(concat('{\"label\":\"', item.name, '\",\"value\":\"', item.name, '\"}')))]",
+                            "required": true
+                        },
+                        "visible": true
+                    },
+                    {
+                        "name": "ehPolicyKeyApi",
+                        "type": "Microsoft.Solutions.ArmApiControl",
+                        "request": {
+                            "method": "POST",
+                            "path": "[concat(steps('appSettings').ehNamespaceDropDown, '/authorizationRules/', steps('appSettings').ehPolicyDropDown, '/listKeys', '?api-version=2017-04-01')]"
+                        }
+                    },
+                    {
+                        "name": "ehApi",
+                        "type": "Microsoft.Solutions.ArmApiControl",
+                        "request": {
+                            "method": "GET",
+                            "path": "[concat(steps('appSettings').ehNamespaceDropDown, '/eventhubs', '?api-version=2017-04-01')]"
+                        }
+                    },
+                    {
+                        "name": "repoSection",
+                        "type": "Microsoft.Common.Section",
+                        "label": "Function Repository",
+                        "elements": [
+                            {
+                                "name": "repoURL",
+                                "label": "Repository URL",
+                                "toolTip": "URL for the function code.",
+                                "type": "Microsoft.Common.TextBox",
+                                "defaultValue": "https://github.com/runreveal/azure-functions-runreveal.git",
+                                "constraints": {
+                                    "required": true
+                                }
+                            },
+                            {
+                                "name": "repoBranch",
+                                "label": "Branch",
+                                "defaultValue": "main",
+                                "type": "Microsoft.Common.TextBox",
+                                "constraints": {
+                                    "required": true
+                                }
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "name": "ehActivityLogs",
+                "label": "Activity Logs",
+                "elements": [
+                    {
+                        "name": "ehActivityEnable",
+                        "type": "Microsoft.Common.CheckBox",
+                        "label": "Enable Activity Log Event Hub Functions"
+                    },
+                    {
+                        "name": "runrevealWebhook",
+                        "label": "RunReveal Webhook URL",
+                        "toolTip": "URL that events are forwarded to.",
+                        "type": "Microsoft.Common.TextBox",
+                        "placeholder": "https://api.runreveal.com/sources/azure-activity/webhook/<webhookid>",
+                        "constraints": {
+                            "required": true
+                        }
+                    },
+                    {
+                        "name": "ehActivityDropDown",
+                        "type": "Microsoft.Common.DropDown",
+                        "label": "Activity Log Event Hub",
+                        "toolTip": "Event Hub containing activity data.",
+                        "defaultValue": "insights-activity-logs",
+                        "constraints": {
+                            "allowedValues": "[map(steps('appSettings').ehApi.value, (item) => parse(concat('{\"label\":\"', item.name, '\",\"value\":\"', item.name, '\"}')))]",
+                            "required": "[steps('ehActivityLogs').ehActivityEnable]"
+                        },
+                        "visible": "[steps('ehActivityLogs').ehActivityEnable]"
+                    },
+                    {
+                        "name": "ehActivityConsumerGroupApi",
+                        "type": "Microsoft.Solutions.ArmApiControl",
+                        "request": {
+                            "method": "GET",
+                            "path": "[concat(steps('appSettings').ehNamespaceDropDown, '/eventhubs/', steps('ehActivityLogs').ehActivityDropDown, '/consumergroups', '?api-version=2017-04-01')]"
+                        }
+                    },
+                    {
+                        "name": "ehActivityConsumerGroupDropDown",
+                        "type": "Microsoft.Common.DropDown",
+                        "label": "Activity Log Consumer Group",
+                        "constraints": {
+                            "allowedValues": "[map(steps('ehActivityLogs').ehActivityConsumerGroupApi.value, (item) => parse(concat('{\"label\":\"', item.name, '\",\"value\":\"', item.name, '\"}')))]",
+                            "required": "[steps('ehActivityLogs').ehActivityEnable]"
+                        },
+                        "visible": "[steps('ehActivityLogs').ehActivityEnable]"
+                    }
+                ]
+            },
+            {
+                "name": "tags",
+                "label": "Tags",
+                "elements": [
+                    {
+                        "name": "tagsByResource",
+                        "type": "Microsoft.Common.TagsByResource",
+                        "resources": [
+                            "Microsoft.Storage/storageAccounts",
+                            "Microsoft.Insights/components",
+                            "Microsoft.Web/sites"
+                        ]
+                    }
+                ]
+            }
+        ],
+        "outputs": {
+            "appName": "[steps('basics').appName]",
+            "eventHubConnectionString": "[steps('appSettings').ehPolicyKeyApi.primaryConnectionString]",
+            "githubRepoURL": "[steps('appSettings').repoSection.repoURL]",
+            "githubRepoBranch": "[steps('appSettings').repoSection.repoBranch]",
+            "RunRevealWebhook": "[steps('ehActivityLogs').runrevealWebhook]",
+            "activityLogHubName": "[steps('ehActivityLogs').ehActivityDropDown]",
+            "activityLogEventHubConsumerGroup": "[steps('ehActivityLogs').ehActivityConsumerGroupDropDown]",
+            "activityLogDisabled": "[if(steps('ehActivityLogs').ehActivityEnable, false, true)]",
+            "tagsByResource": "[steps('tags').tagsByResource]"
+        }
+    }
+}

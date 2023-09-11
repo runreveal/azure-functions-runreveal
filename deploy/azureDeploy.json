@@ -8,31 +8,6 @@
                 "description": "The name of the function app that you wish to create."
             }
         },
-        "storageAccountType": {
-            "type": "string",
-            "defaultValue": "Standard_LRS",
-            "allowedValues": [
-                "Standard_LRS",
-                "Standard_GRS",
-                "Standard_RAGRS",
-                "Standard_ZRS"
-            ],
-            "metadata": {
-                "description": "Storage Account type"
-            }
-        },
-        "storageAccountTLS": {
-            "type": "string",
-            "defaultValue": "TLS1_2",
-            "allowedValues": [
-                "TLS1_0",
-                "TLS1_1",
-                "TLS1_2"
-            ],
-            "metadata": {
-                "description": "Storage Account TLS version"
-            }
-        },
         "eventHubConnectionString": {
             "type": "string",
             "metadata": {
@@ -52,6 +27,10 @@
             "metadata": {
                 "description": "Consumer group for the activity log Event Hub"
             }
+        },
+        "activityLogDisabled": {
+            "type": "bool",
+            "defaultValue": false
         },
         "githubRepoURL": {
             "type": "string",
@@ -85,10 +64,10 @@
             "tags": "[if(contains(parameters('tagsByResource'), 'Microsoft.Storage/storageAccounts'), parameters('tagsByResource')['Microsoft.Storage/storageAccounts'], json('{}'))]",
             "kind": "Storage",
             "sku": {
-                "name": "[parameters('storageAccountType')]"
+                "name": "Standard_LRS"
             },
             "properties": {
-                "minimumTlsVersion": "[parameters('storageAccountTLS')]"
+                "minimumTlsVersion": "TLS1_2"
             }
         },
         {
@@ -157,7 +136,7 @@
                         },
                         {
                             "name": "AzureWebJobs.activity-log-monitoring.Disabled",
-                            "value": "false"
+                            "value": "[parameters('activityLogDisabled')]"
                         },
                         {
                             "name": "RUNREVEAL_WEBHOOK",
