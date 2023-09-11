@@ -128,8 +128,9 @@
                         "type": "Microsoft.Common.TextBox",
                         "placeholder": "https://api.runreveal.com/sources/azure-activity/webhook/<webhookid>",
                         "constraints": {
-                            "required": true
-                        }
+                            "required": "[steps('ehActivityLogs').ehActivityEnable]"
+                        },
+                        "visible": "[steps('ehActivityLogs').ehActivityEnable]"
                     },
                     {
                         "name": "ehActivityDropDown",
