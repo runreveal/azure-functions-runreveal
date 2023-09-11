@@ -13,10 +13,13 @@ module.exports = async function (context, eventHubMessages) {
 
         // Loop over each record to forward to RunReveal
         for (const record of eventHubParsed.records) {
+            // Set Parsed time field
+            record.normalizedTime = new Date(record.time)
             try {
                 eventPromises.push(axios.post(process.env["RUNREVEAL_WEBHOOK"], record));
             } catch (err) {
-                context.error(`(${context.invocationId}) Error sending to RunReveal: ${err}`)
+                context.log(`Failed record: ${JSON.stringify(record)}`)
+                context.log(`(${context.invocationId}) Error sending to RunReveal: ${err}`)
                 throw err
             }
         }
@@ -27,7 +30,8 @@ module.exports = async function (context, eventHubMessages) {
         if (res.every(x => x.status == "fulfilled")) { context.log(`(${context.invocationId}) All events received by RunReveal`) }
         else {
             res.filter(x => x.status == "rejected").forEach(x => {
-                context.error(`(${context.invocationId}) Sending to RunReveal Failed: ${x.reason}`);
+                context.log(`Failed Message: ${eventHubMessages}`)
+                context.log(`(${context.invocationId}) Sending to RunReveal Failed: ${x.reason}`);
             });
             throw new Error(`(${context.invocationId}) Error sending events to RunReveal`);
         }
