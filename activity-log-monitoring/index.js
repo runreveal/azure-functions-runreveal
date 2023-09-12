@@ -37,15 +37,3 @@ module.exports = async function (context, eventHubMessages) {
         }
     });
 };
-
-const checkConfig = function () {
-    let runrevealWebhook = process.env["RUNREVEAL_ACT_WEBHOOK"];
-
-    if (!runrevealWebhook) {
-        return false;
-    }
-
-    return true;
-}
-
-exports.checkConfig = checkConfig;
