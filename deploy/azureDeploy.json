@@ -32,6 +32,36 @@
             "type": "bool",
             "defaultValue": false
         },
+        "RunRevealActWebhook": {
+            "type": "string",
+            "metadata": {
+                "description": "The RunReveal webhook url to send activity logs to."
+            }
+        },
+        "aadLogHubName": {
+            "type": "string",
+            "defaultValue": "insights-aad-logs",
+            "metadata": {
+                "description": "Event Hub name containing AAD logs"
+            }
+        },
+        "aadLogEventHubConsumerGroup": {
+            "type": "string",
+            "defaultValue": "$Default",
+            "metadata": {
+                "description": "Consumer group for the aad log Event Hub"
+            }
+        },
+        "aadLogDisabled": {
+            "type": "bool",
+            "defaultValue": false
+        },
+        "RunRevealAadWebhook": {
+            "type": "string",
+            "metadata": {
+                "description": "The RunReveal webhook url to send aad logs to."
+            }
+        },
         "githubRepoURL": {
             "type": "string",
             "defaultValue": "https://github.com/runreveal/azure-functions-runreveal.git"
@@ -39,12 +69,6 @@
         "githubRepoBranch": {
             "type": "string",
             "defaultValue": "main"
-        },
-        "RunRevealWebhook": {
-            "type": "string",
-            "metadata": {
-                "description": "The RunReveal webhook url to send activity logs to."
-            }
         },
         "tagsByResource": {
             "type": "object",
@@ -139,8 +163,24 @@
                             "value": "[parameters('activityLogDisabled')]"
                         },
                         {
-                            "name": "RUNREVEAL_WEBHOOK",
-                            "value": "[parameters('RunRevealWebhook')]"
+                            "name": "RUNREVEAL_ACT_WEBHOOK",
+                            "value": "[parameters('RunRevealActWebhook')]"
+                        },
+                        {
+                            "name": "AAD_LOG_HUB_NAME",
+                            "value": "[parameters('aadLogHubName')]"
+                        },
+                        {
+                            "name": "AAD_LOG_CONSUMER_GROUP",
+                            "value": "[parameters('aadLogEventHubConsumerGroup')]"
+                        },
+                        {
+                            "name": "AzureWebJobs.aad-log-monitoring.Disabled",
+                            "value": "[parameters('aadLogDisabled')]"
+                        },
+                        {
+                            "name": "RUNREVEAL_AAD_WEBHOOK",
+                            "value": "[parameters('RunRevealAadWebhook')]"
                         }
                     ]
                 }
