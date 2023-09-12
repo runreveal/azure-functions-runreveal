@@ -122,7 +122,7 @@
                         "label": "Enable Activity Log Event Hub Functions"
                     },
                     {
-                        "name": "runrevealWebhook",
+                        "name": "runrevealActWebhook",
                         "label": "RunReveal Webhook URL",
                         "toolTip": "URL that events are forwarded to.",
                         "type": "Microsoft.Common.TextBox",
@@ -165,6 +165,58 @@
                 ]
             },
             {
+                "name": "ehAADLogs",
+                "label": "Active Directory Logs",
+                "elements": [
+                    {
+                        "name": "ehADEnable",
+                        "type": "Microsoft.Common.CheckBox",
+                        "label": "Enable Active Directory Log Event Hub Functions"
+                    },
+                    {
+                        "name": "runrevealAadWebhook",
+                        "label": "RunReveal Webhook URL",
+                        "toolTip": "URL that events are forwarded to.",
+                        "type": "Microsoft.Common.TextBox",
+                        "placeholder": "https://api.runreveal.com/sources/aad/webhook/<webhookid>",
+                        "constraints": {
+                            "required": "[steps('ehAADLogs').ehADEnable]"
+                        },
+                        "visible": "[steps('ehAADLogs').ehADEnable]"
+                    },
+                    {
+                        "name": "ehADDropDown",
+                        "type": "Microsoft.Common.DropDown",
+                        "label": "Active Directory Log Event Hub",
+                        "toolTip": "Event Hub containing Active Directory logs.",
+                        "defaultValue": "insights-aad-logs",
+                        "constraints": {
+                            "allowedValues": "[map(steps('appSettings').ehApi.value, (item) => parse(concat('{\"label\":\"', item.name, '\",\"value\":\"', item.name, '\"}')))]",
+                            "required": "[steps('ehAADLogs').ehADEnable]"
+                        },
+                        "visible": "[steps('ehAADLogs').ehADEnable]"
+                    },
+                    {
+                        "name": "ehADConsumerGroupApi",
+                        "type": "Microsoft.Solutions.ArmApiControl",
+                        "request": {
+                            "method": "GET",
+                            "path": "[concat(steps('appSettings').ehNamespaceDropDown, '/eventhubs/', steps('ehAADLogs').ehADDropDown, '/consumergroups', '?api-version=2017-04-01')]"
+                        }
+                    },
+                    {
+                        "name": "ehADConsumerGroupDropDown",
+                        "type": "Microsoft.Common.DropDown",
+                        "label": "Active Directory Log Consumer Group",
+                        "constraints": {
+                            "allowedValues": "[map(steps('ehAADLogs').ehADConsumerGroupApi.value, (item) => parse(concat('{\"label\":\"', item.name, '\",\"value\":\"', item.name, '\"}')))]",
+                            "required": "[steps('ehAADLogs').ehADEnable]"
+                        },
+                        "visible": "[steps('ehAADLogs').ehADEnable]"
+                    }
+                ]
+            },
+            {
                 "name": "tags",
                 "label": "Tags",
                 "elements": [
@@ -185,7 +237,11 @@
             "eventHubConnectionString": "[steps('appSettings').ehPolicyKeyApi.primaryConnectionString]",
             "githubRepoURL": "[steps('appSettings').repoSection.repoURL]",
             "githubRepoBranch": "[steps('appSettings').repoSection.repoBranch]",
-            "RunRevealWebhook": "[steps('ehActivityLogs').runrevealWebhook]",
+            "aadLogHubName": "[steps('ehAADLogs').ehADDropDown]",
+            "aadLogEventHubConsumerGroup": "[steps('ehAADLogs').ehADConsumerGroupDropDown]",
+            "aadLogDisabled": "[if(steps('ehAADLogs').ehADEnable, false, true)]",
+            "RunRevealAadWebhook": "[steps('ehAADLogs').runrevealAadWebhook]",
+            "RunRevealActWebhook": "[steps('ehActivityLogs').runrevealActWebhook]",
             "activityLogHubName": "[steps('ehActivityLogs').ehActivityDropDown]",
             "activityLogEventHubConsumerGroup": "[steps('ehActivityLogs').ehActivityConsumerGroupDropDown]",
             "activityLogDisabled": "[if(steps('ehActivityLogs').ehActivityEnable, false, true)]",

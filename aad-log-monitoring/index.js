@@ -16,7 +16,7 @@ module.exports = async function (context, eventHubMessages) {
             // Set Parsed time field
             record.normalizedTime = new Date(record.time)
             try {
-                eventPromises.push(axios.post(process.env["RUNREVEAL_ACT_WEBHOOK"], record));
+                eventPromises.push(axios.post(process.env["RUNREVEAL_AAD_WEBHOOK"], record));
             } catch (err) {
                 context.log(`Failed record: ${JSON.stringify(record)}`)
                 context.log(`(${context.invocationId}) Error sending to RunReveal: ${err}`)
@@ -39,7 +39,7 @@ module.exports = async function (context, eventHubMessages) {
 };
 
 const checkConfig = function () {
-    let runrevealWebhook = process.env["RUNREVEAL_ACT_WEBHOOK"];
+    let runrevealWebhook = process.env["RUNREVEAL_AAD_WEBHOOK"];
 
     if (!runrevealWebhook) {
         return false;
