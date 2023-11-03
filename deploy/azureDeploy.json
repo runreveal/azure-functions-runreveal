@@ -34,6 +34,7 @@
         },
         "RunRevealActWebhook": {
             "type": "string",
+            "defaultValue": "",
             "metadata": {
                 "description": "The RunReveal webhook url to send activity logs to."
             }
@@ -58,6 +59,7 @@
         },
         "RunRevealAadWebhook": {
             "type": "string",
+            "defaultValue": "",
             "metadata": {
                 "description": "The RunReveal webhook url to send aad logs to."
             }
