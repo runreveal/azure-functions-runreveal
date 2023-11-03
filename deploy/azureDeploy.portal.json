@@ -127,9 +127,6 @@
                         "toolTip": "URL that events are forwarded to.",
                         "type": "Microsoft.Common.TextBox",
                         "placeholder": "https://api.runreveal.com/sources/azure-activity/webhook/<webhookid>",
-                        "constraints": {
-                            "required": "[steps('ehActivityLogs').ehActivityEnable]"
-                        },
                         "visible": "[steps('ehActivityLogs').ehActivityEnable]"
                     },
                     {
@@ -139,8 +136,7 @@
                         "toolTip": "Event Hub containing activity data.",
                         "defaultValue": "insights-activity-logs",
                         "constraints": {
-                            "allowedValues": "[map(steps('appSettings').ehApi.value, (item) => parse(concat('{\"label\":\"', item.name, '\",\"value\":\"', item.name, '\"}')))]",
-                            "required": "[steps('ehActivityLogs').ehActivityEnable]"
+                            "allowedValues": "[map(steps('appSettings').ehApi.value, (item) => parse(concat('{\"label\":\"', item.name, '\",\"value\":\"', item.name, '\"}')))]"
                         },
                         "visible": "[steps('ehActivityLogs').ehActivityEnable]"
                     },
@@ -157,8 +153,7 @@
                         "type": "Microsoft.Common.DropDown",
                         "label": "Activity Log Consumer Group",
                         "constraints": {
-                            "allowedValues": "[map(steps('ehActivityLogs').ehActivityConsumerGroupApi.value, (item) => parse(concat('{\"label\":\"', item.name, '\",\"value\":\"', item.name, '\"}')))]",
-                            "required": "[steps('ehActivityLogs').ehActivityEnable]"
+                            "allowedValues": "[map(steps('ehActivityLogs').ehActivityConsumerGroupApi.value, (item) => parse(concat('{\"label\":\"', item.name, '\",\"value\":\"', item.name, '\"}')))]"
                         },
                         "visible": "[steps('ehActivityLogs').ehActivityEnable]"
                     }
@@ -180,7 +175,6 @@
                         "type": "Microsoft.Common.TextBox",
                         "placeholder": "https://api.runreveal.com/sources/aad/webhook/<webhookid>",
                         "constraints": {
-                            "required": "[steps('ehAADLogs').ehADEnable]"
                         },
                         "visible": "[steps('ehAADLogs').ehADEnable]"
                     },
@@ -191,8 +185,7 @@
                         "toolTip": "Event Hub containing Active Directory logs.",
                         "defaultValue": "insights-aad-logs",
                         "constraints": {
-                            "allowedValues": "[map(steps('appSettings').ehApi.value, (item) => parse(concat('{\"label\":\"', item.name, '\",\"value\":\"', item.name, '\"}')))]",
-                            "required": "[steps('ehAADLogs').ehADEnable]"
+                            "allowedValues": "[map(steps('appSettings').ehApi.value, (item) => parse(concat('{\"label\":\"', item.name, '\",\"value\":\"', item.name, '\"}')))]"
                         },
                         "visible": "[steps('ehAADLogs').ehADEnable]"
                     },
@@ -209,8 +202,7 @@
                         "type": "Microsoft.Common.DropDown",
                         "label": "Active Directory Log Consumer Group",
                         "constraints": {
-                            "allowedValues": "[map(steps('ehAADLogs').ehADConsumerGroupApi.value, (item) => parse(concat('{\"label\":\"', item.name, '\",\"value\":\"', item.name, '\"}')))]",
-                            "required": "[steps('ehAADLogs').ehADEnable]"
+                            "allowedValues": "[map(steps('ehAADLogs').ehADConsumerGroupApi.value, (item) => parse(concat('{\"label\":\"', item.name, '\",\"value\":\"', item.name, '\"}')))]"
                         },
                         "visible": "[steps('ehAADLogs').ehADEnable]"
                     }
