@@ -161,12 +161,12 @@
             },
             {
                 "name": "ehAADLogs",
-                "label": "Active Directory Logs",
+                "label": "Microsoft Entra Logs",
                 "elements": [
                     {
                         "name": "ehADEnable",
                         "type": "Microsoft.Common.CheckBox",
-                        "label": "Enable Active Directory Log Event Hub Functions"
+                        "label": "Enable Entra Log Event Hub Functions"
                     },
                     {
                         "name": "runrevealAadWebhook",
@@ -181,8 +181,8 @@
                     {
                         "name": "ehADDropDown",
                         "type": "Microsoft.Common.DropDown",
-                        "label": "Active Directory Log Event Hub",
-                        "toolTip": "Event Hub containing Active Directory logs.",
+                        "label": "Entra Log Event Hub",
+                        "toolTip": "Event Hub containing Entra logs.",
                         "defaultValue": "insights-aad-logs",
                         "constraints": {
                             "allowedValues": "[map(steps('appSettings').ehApi.value, (item) => parse(concat('{\"label\":\"', item.name, '\",\"value\":\"', item.name, '\"}')))]"
@@ -200,7 +200,7 @@
                     {
                         "name": "ehADConsumerGroupDropDown",
                         "type": "Microsoft.Common.DropDown",
-                        "label": "Active Directory Log Consumer Group",
+                        "label": "Entra Log Consumer Group",
                         "constraints": {
                             "allowedValues": "[map(steps('ehAADLogs').ehADConsumerGroupApi.value, (item) => parse(concat('{\"label\":\"', item.name, '\",\"value\":\"', item.name, '\"}')))]"
                         },
